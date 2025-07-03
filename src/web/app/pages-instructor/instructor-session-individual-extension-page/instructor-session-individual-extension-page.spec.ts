@@ -32,6 +32,7 @@ import {
   ResponseVisibleSetting,
   SessionVisibleSetting,
 } from '../../../types/api-request';
+import { SortBy } from '../../../types/sort-properties';
 
 describe('InstructorSessionIndividualExtensionPageComponent', () => {
   const testCourse: Course = {
@@ -683,4 +684,31 @@ describe('InstructorSessionIndividualExtensionPageComponent', () => {
     expect(instructorOneCheckBox.checked).toBeFalsy();
     expect(instructorTwoCheckBox.checked).toBeTruthy();
   });
+
+  it(
+    'should sort students by team name in ascending or descending order',
+    () => {
+      const unsortedStudents: Students = {
+        students: [
+          { ...testStudent1, teamName: 'Team 3' },
+          { ...testStudent2, teamName: 'Team 1' },
+          { ...testStudent3, teamName: 'Team 2' },
+        ],
+      };
+      jest.spyOn(studentService, 'getStudentsFromCourse').mockReturnValue(of(unsortedStudents));
+      jest.spyOn(courseService, 'getCourseAsInstructor').mockReturnValue(of(testCourse));
+      jest.spyOn(feedbackSessionsService, 'getFeedbackSession').mockReturnValue(of(testFeedbackSession));
+      component.ngOnInit();
+      fixture.detectChanges();
+  
+      // Sort by ascending
+      component.sortStudentColumnsBy(SortBy.TEAM_NAME);
+      fixture.detectChanges();
+      expect(component.studentsOfCourse.map(s => s.teamName)).toEqual(['Team 1', 'Team 2', 'Team 3']);
+  
+      // Sort by descending
+      component.sortStudentColumnsBy(SortBy.TEAM_NAME);
+      fixture.detectChanges();
+      expect(component.studentsOfCourse.map(s => s.teamName)).toEqual(['Team 3', 'Team 2', 'Team 1']);
+  })
 });
