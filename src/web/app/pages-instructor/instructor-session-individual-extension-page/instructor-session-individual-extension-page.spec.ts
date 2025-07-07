@@ -32,6 +32,8 @@ import {
   ResponseVisibleSetting,
   SessionVisibleSetting,
 } from '../../../types/api-request';
+import { SortBy } from '../../../types/sort-properties';
+import { StudentExtensionTableColumnModel } from './extension-table-column-model';
 
 describe('InstructorSessionIndividualExtensionPageComponent', () => {
   const testCourse: Course = {
@@ -682,5 +684,146 @@ describe('InstructorSessionIndividualExtensionPageComponent', () => {
     expect(component.isAllYetToSubmitStudentsSelected).toBeFalsy();
     expect(instructorOneCheckBox.checked).toBeFalsy();
     expect(instructorTwoCheckBox.checked).toBeTruthy();
+  });
+
+  it(
+    'should sort students by team name in ascending or descending order',
+    () => {
+      const unsortedStudents: Students = {
+        students: [
+          { ...testStudent1, teamName: 'Team 3' },
+          { ...testStudent2, teamName: 'Team 1' },
+          { ...testStudent3, teamName: 'Team 2' },
+        ],
+      };
+      jest.spyOn(studentService, 'getStudentsFromCourse').mockReturnValue(of(unsortedStudents));
+      jest.spyOn(courseService, 'getCourseAsInstructor').mockReturnValue(of(testCourse));
+      jest.spyOn(feedbackSessionsService, 'getFeedbackSession').mockReturnValue(of(testFeedbackSession));
+      component.ngOnInit();
+      fixture.detectChanges();
+  
+      // Sort by ascending
+      component.sortStudentColumnsBy(SortBy.TEAM_NAME);
+      fixture.detectChanges();
+      expect(component.studentsOfCourse.map(s => s.teamName)).toEqual(['Team 1', 'Team 2', 'Team 3']);
+  
+      // Sort by descending
+      component.sortStudentColumnsBy(SortBy.TEAM_NAME);
+      fixture.detectChanges();
+      expect(component.studentsOfCourse.map(s => s.teamName)).toEqual(['Team 3', 'Team 2', 'Team 1']);
+  })
+
+  it(
+    'should sort students by section in ascending or descending order',
+    () => {
+      const unsortedStudents: Students = {
+        students: [
+          { ...testStudent1, sectionName: 'Tutorial Group 1' },
+          { ...testStudent2, sectionName: 'Tutorial Group 2' },
+          { ...testStudent3, sectionName: 'Tutorial Group 3' },
+        ],
+      };
+      jest.spyOn(studentService, 'getStudentsFromCourse').mockReturnValue(of(unsortedStudents));
+      jest.spyOn(courseService, 'getCourseAsInstructor').mockReturnValue(of(testCourse));
+      jest.spyOn(feedbackSessionsService, 'getFeedbackSession').mockReturnValue(of(testFeedbackSession));
+      component.ngOnInit();
+      fixture.detectChanges();
+  
+      // Sort by ascending
+      component.sortStudentColumnsBy(SortBy.SECTION_NAME);
+      fixture.detectChanges();
+      expect(component.studentsOfCourse.map(s => s.sectionName)).toEqual(['Tutorial Group 1', 'Tutorial Group 2', 'Tutorial Group 3']);
+  
+      // Sort by descending
+      component.sortStudentColumnsBy(SortBy.SECTION_NAME);
+      fixture.detectChanges();
+      expect(component.studentsOfCourse.map(s => s.sectionName)).toEqual(['Tutorial Group 3', 'Tutorial Group 2', 'Tutorial Group 1']);
+  })
+
+  it(
+    'should sort students by name in ascending or descending order',
+    () => {
+      const unsortedStudents: Students = {
+        students: [
+          { ...testStudent1, name: 'Alice' },
+          { ...testStudent2, name: 'Benny' },
+          { ...testStudent3, name: 'Danny' },
+        ],
+      };
+      jest.spyOn(studentService, 'getStudentsFromCourse').mockReturnValue(of(unsortedStudents));
+      jest.spyOn(courseService, 'getCourseAsInstructor').mockReturnValue(of(testCourse));
+      jest.spyOn(feedbackSessionsService, 'getFeedbackSession').mockReturnValue(of(testFeedbackSession));
+      component.ngOnInit();
+      fixture.detectChanges();
+  
+      // Sort by ascending
+      component.sortStudentColumnsBy(SortBy.RESPONDENT_NAME);
+      fixture.detectChanges();
+      expect(component.studentsOfCourse.map(s => s.name)).toEqual(['Alice', 'Benny', 'Danny']);
+  
+      // Sort by descending
+      component.sortStudentColumnsBy(SortBy.RESPONDENT_NAME);
+      fixture.detectChanges();
+      expect(component.studentsOfCourse.map(s => s.name)).toEqual(['Danny', 'Benny', 'Alice']);
+  })
+
+  it(
+    'should sort students by email in ascending or descending order',
+    () => {
+      const unsortedStudents: Students = {
+        students: [
+          { ...testStudent1, email: 'alice.b.tmms@gmail.tmt' },
+          { ...testStudent2, email: 'benny.c.tmms@gmail.tmt' },
+          { ...testStudent3, email: 'danny.e.tmms@gmail.tmt' },
+        ],
+      };
+      jest.spyOn(studentService, 'getStudentsFromCourse').mockReturnValue(of(unsortedStudents));
+      jest.spyOn(courseService, 'getCourseAsInstructor').mockReturnValue(of(testCourse));
+      jest.spyOn(feedbackSessionsService, 'getFeedbackSession').mockReturnValue(of(testFeedbackSession));
+      component.ngOnInit();
+      fixture.detectChanges();
+  
+      // Sort by ascending
+      component.sortStudentColumnsBy(SortBy.RESPONDENT_EMAIL);
+      fixture.detectChanges();
+      expect(component.studentsOfCourse.map(s => s.email)).toEqual(['alice.b.tmms@gmail.tmt', 'benny.c.tmms@gmail.tmt', 'danny.e.tmms@gmail.tmt']);
+  
+      // Sort by descending
+      component.sortStudentColumnsBy(SortBy.RESPONDENT_EMAIL);
+      fixture.detectChanges();
+      expect(component.studentsOfCourse.map(s => s.email)).toEqual(['danny.e.tmms@gmail.tmt', 'benny.c.tmms@gmail.tmt', 'alice.b.tmms@gmail.tmt']);
+  })
+
+  it('should sort students by current deadline ascending and descending', () => {
+    component.studentsOfCourse = [
+      { 
+        email: 'alice.b.tmms@gmail.tmt	', name: 'Alice', teamName: 'Team 1', sectionName: 'Tutorial Group 1',
+        extensionDeadline: 2000,
+        hasSubmittedSession: false,
+        isSelected: false,
+      } as StudentExtensionTableColumnModel,
+      {
+        email: 'benny.c.tmms@gmail.tmt', name: 'Benny', teamName: 'Team 2', sectionName: 'Tutorial Group 1',
+        extensionDeadline: 1000,
+        hasSubmittedSession: false,
+        isSelected: false,
+      } as StudentExtensionTableColumnModel,
+      {
+        email: 'danny.e.tmms@gmail.tmt	', name: 'Danny', teamName: 'Team 2', sectionName: 'Tutorial Group 2',
+        extensionDeadline: 3000,
+        hasSubmittedSession: false,
+        isSelected: false,
+      } as StudentExtensionTableColumnModel,
+    ];
+
+    // Sort by ascending
+    component.sortStudentColumnsBy(SortBy.SESSION_END_DATE);
+    fixture.detectChanges();
+    expect(component.studentsOfCourse.map(s => s.extensionDeadline)).toEqual([1000, 2000, 3000]);
+
+    // Sort by descending
+    component.sortStudentColumnsBy(SortBy.SESSION_END_DATE);
+    fixture.detectChanges();
+    expect(component.studentsOfCourse.map(s => s.extensionDeadline)).toEqual([3000, 2000, 1000]);
   });
 });
